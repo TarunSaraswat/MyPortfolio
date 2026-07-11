@@ -67,3 +67,18 @@
     --dir: left;
 }
 
+/* Grouped skill labels */
+.skill-group-heading {
+    display: block;
+    font-size: 1.6rem;
+    color: var(--cyan);
+    margin-bottom: 0.3rem;
+}
+
+.skill-group-items {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+}
+
