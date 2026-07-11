@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarun Saraswat — Lead SDET</title>
+    <meta name="description" content="Portfolio of Tarun Saraswat, Lead SDET specializing in backend testing, automation frameworks, and quality engineering.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/dna-section.css">
+    <link rel="stylesheet" href="css/ar-frame.css">
+    <link rel="stylesheet" href="css/contact.css">
+</head>
+<body>
+    <!-- Three.js Canvas (fixed background) -->
+    <canvas id="dna-canvas"></canvas>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-content">
+                <h1 class="hero-name">Tarun Saraswat</h1>
+                <div class="hero-title">
+                    <span class="title-text">Lead SDET</span>
+                    <span class="title-cursor">_</span>
+                </div>
+                <p class="hero-tagline">Engineering Quality at Scale</p>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll to explore</span>
+                <div class="scroll-arrow"></div>
+            </div>
+        </section>
+
+        <!-- DNA Skills Section -->
+        <section class="dna-section" id="dna-section">
+            <div class="skills-container" id="skills-container">
+                <!-- Skill labels are dynamically positioned via JS -->
+            </div>
+        </section>
+
+        <!-- AR Frame Overlay -->
+        <div class="ar-frame-overlay" id="ar-frame-overlay">
+            <div class="ar-frame" id="ar-frame">
+                <div class="ar-frame-border"></div>
+                <div class="ar-corner ar-corner-tl"></div>
+                <div class="ar-corner ar-corner-tr"></div>
+                <div class="ar-corner ar-corner-bl"></div>
+                <div class="ar-corner ar-corner-br"></div>
+                <div class="ar-scanline"></div>
+                <button class="ar-close" id="ar-close">&#x2715;</button>
+                <div class="ar-frame-content" id="ar-frame-content">
+                    <div class="ar-header">
+                        <span class="ar-label">SKILL://</span>
+                        <h2 class="ar-skill-name" id="ar-skill-name"></h2>
+                    </div>
+                    <div class="ar-body">
+                        <div class="ar-stat">
+                            <span class="ar-stat-label">CATEGORY</span>
+                            <span class="ar-stat-value" id="ar-category"></span>
+                        </div>
+                        <div class="ar-stat">
+                            <span class="ar-stat-label">EXPERIENCE</span>
+                            <span class="ar-stat-value" id="ar-experience"></span>
+                        </div>
+                        <div class="ar-stat">
+                            <span class="ar-stat-label">CONTEXT</span>
+                            <span class="ar-stat-value" id="ar-context"></span>
+                        </div>
+                        <div class="ar-stat">
+                            <span class="ar-stat-label">RELATED</span>
+                            <span class="ar-stat-value" id="ar-related"></span>
+                        </div>
+                    </div>
+                    <div class="ar-footer">
+                        <div class="ar-pulse"></div>
+                        <span class="ar-status">SYSTEM ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <section class="contact" id="contact">
+            <h2 class="contact-heading">Get In Touch</h2>
+            <div class="contact-grid">
+                <a href="mailto:tarunsaraswat478@gmail.com" class="contact-item">
+                    <span class="contact-label">EMAIL</span>
+                    <span class="contact-value">tarunsaraswat478@gmail.com</span>
+                </a>
+                <a href="tel:+919084989592" class="contact-item">
+                    <span class="contact-label">PHONE</span>
+                    <span class="contact-value">+91 9084989592</span>
+                </a>
+                <a href="https://linkedin.com/in/-saraswat-544544143" target="_blank" rel="noopener" class="contact-item">
+                    <span class="contact-label">LINKEDIN</span>
+                    <span class="contact-value">linkedin.com/in/-saraswat-544544143</span>
+                </a>
+                <div class="contact-item">
+                    <span class="contact-label">LOCATION</span>
+                    <span class="contact-value">Bangalore, India</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.1/dist/lenis.min.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/dna-strand.js"></script>
+    <script src="js/scroll-controller.js"></script>
+    <script src="js/skill-nodes.js"></script>
+    <script src="js/ar-frame.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
