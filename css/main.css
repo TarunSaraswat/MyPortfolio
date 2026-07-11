@@ -53,9 +53,15 @@ body {
     transition: opacity 0.5s ease;
 }
 
+/* Ensure contact links are clickable above canvas layers */
+.contact {
+    position: relative;
+    z-index: 10;
+}
+
 main {
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
 ::selection {

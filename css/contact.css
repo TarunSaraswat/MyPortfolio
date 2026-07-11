@@ -77,6 +77,27 @@
     color: var(--text-primary);
 }
 
+.contact-copy {
+    cursor: pointer;
+}
+
+.copy-toast {
+    position: absolute;
+    top: 50%;
+    right: 1.5rem;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    letter-spacing: 0.1em;
+}
+
+.copy-toast.show {
+    opacity: 1;
+}
+
 @media (max-width: 768px) {
     .contact-grid {
         grid-template-columns: 1fr;

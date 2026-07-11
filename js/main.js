@@ -12,6 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Typewriter effect for hero title
     typewriterEffect();
+
+    // Copy email on click
+    document.getElementById('copy-email').addEventListener('click', function () {
+        const text = this.dataset.copy;
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = this.querySelector('.copy-toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1500);
+        });
+    });
 });
 
 function typewriterEffect() {
