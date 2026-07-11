@@ -169,17 +169,58 @@ const DNAStrand = (() => {
         dnaGroup.add(rungSystem);
         particleSystems.push(rungSystem);
 
-        // Add bright node spheres at skill positions
+        // Add node sprites with shader-based radial glow
+        const glowVertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+        const glowFragmentShader = `
+            uniform vec3 uColor;
+            varying vec2 vUv;
+            void main() {
+                float dist = length(vUv - vec2(0.5)) * 2.0; // 0 at center, 1 at edge
+                if (dist > 1.0) discard;
+
+                // Smooth radial falloff: bright core, gradually fades to 0
+                float glow = pow(1.0 - dist, 3.0);
+
+                // Bright solid core in the center 25%
+                float core = smoothstep(0.3, 0.0, dist);
+                glow = max(glow, core);
+
+                gl_FragColor = vec4(uColor, glow);
+            }
+        `;
+
         skillNodePositions.forEach((node) => {
-            const nodeGeom = new THREE.SphereGeometry(0.12, 16, 16);
-            const nodeMat = new THREE.MeshBasicMaterial({
-                color: 0x00f0ff,
+            const isStrandA = node.side === 'left';
+            const color = isStrandA ? new THREE.Vector3(0, 0.94, 1) : new THREE.Vector3(1, 0, 0.67);
+
+            const spriteMat = new THREE.ShaderMaterial({
+                uniforms: {
+                    uColor: { value: color }
+                },
+                vertexShader: glowVertexShader,
+                fragmentShader: glowFragmentShader,
                 transparent: true,
-                opacity: 0.9
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
             });
-            const nodeMesh = new THREE.Mesh(nodeGeom, nodeMat);
-            nodeMesh.position.copy(node.position);
-            dnaGroup.add(nodeMesh);
+
+            const spriteGeom = new THREE.PlaneGeometry(0.7, 0.7);
+            const sprite = new THREE.Mesh(spriteGeom, spriteMat);
+            sprite.position.copy(node.position);
+            sprite.lookAt(camera.position);
+
+            // Make it always face camera
+            sprite.onBeforeRender = function () {
+                this.lookAt(camera.position);
+            };
+
+            dnaGroup.add(sprite);
         });
     }
 
