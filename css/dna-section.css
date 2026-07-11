@@ -24,43 +24,46 @@
     pointer-events: all;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 0.9rem;
+    font-size: 1.8rem;
     font-weight: 500;
-    padding: 0.6rem 1.4rem;
-    border-radius: 2px;
-    background: rgba(10, 10, 26, 0.8);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--cyan-dim);
+    padding: 1.3rem 2.8rem;
+    border-radius: 4px;
+    background: rgba(10, 10, 26, 0.85);
+    backdrop-filter: blur(6px);
+    border: 1.5px solid rgba(0, 240, 255, 0.45);
     color: var(--text-primary);
     transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
     opacity: 0;
     white-space: nowrap;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.1), inset 0 0 12px rgba(0, 240, 255, 0.03);
 }
 
 .skill-label:hover {
     border-color: var(--cyan);
-    box-shadow: 0 0 20px var(--cyan-dim), inset 0 0 20px rgba(0, 240, 255, 0.05);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.3), 0 0 60px rgba(0, 240, 255, 0.1), inset 0 0 20px rgba(0, 240, 255, 0.08);
     color: var(--cyan);
-    transform: translateY(-50%) scale(1.08) !important;
+    transform: translateY(-50%) scale(1.1) !important;
 }
 
-/* Connector line from label towards DNA center */
+/* Small connector line from label towards DNA */
 .skill-label::after {
     content: '';
     position: absolute;
     top: 50%;
-    height: 1px;
-    width: 40px;
-    background: linear-gradient(to var(--dir), var(--cyan-dim), transparent);
+    height: 1.5px;
+    width: 50px;
     pointer-events: none;
+    background: linear-gradient(to var(--dir), rgba(0, 240, 255, 0.6), transparent);
 }
 
 .skill-label.left::after {
-    right: -40px;
+    right: -50px;
     --dir: right;
 }
 
 .skill-label.right::after {
-    left: -40px;
+    left: -50px;
     --dir: left;
 }
+

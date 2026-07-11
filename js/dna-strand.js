@@ -1,7 +1,6 @@
 /**
- * DNA Strand - Three.js WebGL Helix Renderer
- * Creates a glowing double helix with connecting rungs
- * Uses emissive materials for glow effect (no post-processing needed)
+ * DNA Strand - Particle-based Double Helix
+ * Creates a volumetric, glowing particle DNA inspired by 3D renders
  */
 
 const DNAStrand = (() => {
@@ -9,36 +8,33 @@ const DNAStrand = (() => {
     let dnaGroup;
     let skillNodePositions = [];
     let time = 0;
-    let glowMeshes = [];
+    let particleSystems = [];
 
     const CONFIG = {
-        radius: 1.6,
-        turns: 5,
-        pointsPerTurn: 50,
-        verticalSpacing: 0.9,
-        rungInterval: 5,
-        tubeRadius: 0.045,
-        rungRadius: 0.02,
+        radius: 2.5,           // Wider helix
+        turns: 4,
+        pointsPerTurn: 120,    // More points for density
+        strandThickness: 0.35, // Thicker particle spread
+        particlesPerPoint: 14, // More particles per cross-section
+        rungInterval: 8,
+        rungParticles: 60,     // Denser rungs
         colors: {
-            strandA: 0x00f0ff,
-            strandB: 0xff00aa,
-            rung: 0x00f0ff,
-            node: 0x00f0ff
+            strandA: [0, 0.94, 1],    // Cyan RGB
+            strandB: [1, 0, 0.67],    // Magenta RGB
+            rung: [0, 0.8, 1],
+            node: [1, 1, 1]
         }
     };
 
     function init() {
         const canvas = document.getElementById('dna-canvas');
 
-        // Scene
         scene = new THREE.Scene();
 
-        // Camera
-        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 8);
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 12);
         camera.lookAt(0, 0, 0);
 
-        // Renderer
         renderer = new THREE.WebGLRenderer({
             canvas,
             antialias: true,
@@ -47,154 +43,211 @@ const DNAStrand = (() => {
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Build DNA
+        // Build particle DNA
         dnaGroup = new THREE.Group();
-        buildHelix();
+        buildParticleHelix();
         scene.add(dnaGroup);
 
-        // Lighting for glow effect
-        const ambientLight = new THREE.AmbientLight(0x111133, 0.5);
-        scene.add(ambientLight);
-
-        const pointLight1 = new THREE.PointLight(0x00f0ff, 2, 20);
-        pointLight1.position.set(3, 5, 5);
-        scene.add(pointLight1);
-
-        const pointLight2 = new THREE.PointLight(0xff00aa, 1.5, 20);
-        pointLight2.position.set(-3, -5, 5);
-        scene.add(pointLight2);
-
-        // Handle resize
         window.addEventListener('resize', onResize);
-
-        // Start render loop
         animate();
     }
 
-    function buildHelix() {
+    function buildParticleHelix() {
         const totalPoints = CONFIG.turns * CONFIG.pointsPerTurn;
-        const totalHeight = CONFIG.turns * CONFIG.verticalSpacing * CONFIG.pointsPerTurn;
+        const totalHeight = CONFIG.turns * 8; // Total vertical extent
 
-        // Generate helix points
-        const pointsA = [];
-        const pointsB = [];
+        // --- Strand A (Cyan) particles ---
+        const strandAPositions = [];
+        const strandASizes = [];
+        const strandAOpacities = [];
+
+        // --- Strand B (Magenta) particles ---
+        const strandBPositions = [];
+        const strandBSizes = [];
+        const strandBOpacities = [];
+
+        // --- Rung particles ---
+        const rungPositions = [];
+        const rungSizes = [];
+        const rungOpacities = [];
+
+        let nodeIndex = 0;
 
         for (let i = 0; i <= totalPoints; i++) {
             const t = (i / totalPoints) * Math.PI * 2 * CONFIG.turns;
             const y = (i / totalPoints) * totalHeight - totalHeight / 2;
 
-            pointsA.push(new THREE.Vector3(
-                CONFIG.radius * Math.cos(t),
-                y,
-                CONFIG.radius * Math.sin(t)
-            ));
+            const ax = CONFIG.radius * Math.cos(t);
+            const az = CONFIG.radius * Math.sin(t);
+            const bx = CONFIG.radius * Math.cos(t + Math.PI);
+            const bz = CONFIG.radius * Math.sin(t + Math.PI);
 
-            pointsB.push(new THREE.Vector3(
-                CONFIG.radius * Math.cos(t + Math.PI),
-                y,
-                CONFIG.radius * Math.sin(t + Math.PI)
-            ));
+            // Generate particles with volume around the helix path
+            for (let p = 0; p < CONFIG.particlesPerPoint; p++) {
+                const angle = (p / CONFIG.particlesPerPoint) * Math.PI * 2;
+                const spread = CONFIG.strandThickness * (0.3 + Math.random() * 0.7);
+
+                // Strand A
+                const offsetAx = Math.cos(angle) * spread * Math.cos(t);
+                const offsetAy = (Math.random() - 0.5) * CONFIG.strandThickness * 0.5;
+                const offsetAz = Math.cos(angle) * spread * Math.sin(t);
+
+                strandAPositions.push(
+                    ax + offsetAx + (Math.random() - 0.5) * 0.1,
+                    y + offsetAy,
+                    az + offsetAz + (Math.random() - 0.5) * 0.1
+                );
+                strandASizes.push(0.06 + Math.random() * 0.1);
+                strandAOpacities.push(0.5 + Math.random() * 0.5);
+
+                // Strand B
+                const offsetBx = Math.cos(angle) * spread * Math.cos(t + Math.PI);
+                const offsetBy = (Math.random() - 0.5) * CONFIG.strandThickness * 0.5;
+                const offsetBz = Math.cos(angle) * spread * Math.sin(t + Math.PI);
+
+                strandBPositions.push(
+                    bx + offsetBx + (Math.random() - 0.5) * 0.1,
+                    y + offsetBy,
+                    bz + offsetBz + (Math.random() - 0.5) * 0.1
+                );
+                strandBSizes.push(0.06 + Math.random() * 0.1);
+                strandBOpacities.push(0.5 + Math.random() * 0.5);
+            }
+
+            // Rungs
+            if (i % CONFIG.rungInterval === 0 && i > 0) {
+                for (let r = 0; r < CONFIG.rungParticles; r++) {
+                    const lerp = r / (CONFIG.rungParticles - 1);
+                    const rx = ax + (bx - ax) * lerp;
+                    const rz = az + (bz - az) * lerp;
+
+                    rungPositions.push(
+                        rx + (Math.random() - 0.5) * 0.08,
+                        y + (Math.random() - 0.5) * 0.08,
+                        rz + (Math.random() - 0.5) * 0.08
+                    );
+                    rungSizes.push(0.05 + Math.random() * 0.08);
+                    rungOpacities.push(0.5 + Math.random() * 0.5);
+                }
+
+                // Skill node positions (at ends of rungs)
+                const side = nodeIndex % 2 === 0 ? 'left' : 'right';
+                const nodePos = side === 'left'
+                    ? new THREE.Vector3(ax, y, az)
+                    : new THREE.Vector3(bx, y, bz);
+
+                skillNodePositions.push({
+                    position: nodePos,
+                    side: side,
+                    index: nodeIndex
+                });
+                nodeIndex++;
+            }
         }
 
-        // Strand A - Cyan
-        const curveA = new THREE.CatmullRomCurve3(pointsA);
-        const tubeGeomA = new THREE.TubeGeometry(curveA, totalPoints * 2, CONFIG.tubeRadius, 8, false);
-        const matA = new THREE.MeshStandardMaterial({
-            color: CONFIG.colors.strandA,
-            emissive: CONFIG.colors.strandA,
-            emissiveIntensity: 0.8,
-            transparent: true,
-            opacity: 0.95,
-            roughness: 0.2,
-            metalness: 0.8
-        });
-        const strandA = new THREE.Mesh(tubeGeomA, matA);
-        dnaGroup.add(strandA);
-        glowMeshes.push(strandA);
+        // Create strand A particle system
+        const strandASystem = createParticleSystem(
+            strandAPositions, strandASizes, strandAOpacities,
+            CONFIG.colors.strandA, 2.8
+        );
+        dnaGroup.add(strandASystem);
+        particleSystems.push(strandASystem);
 
-        // Strand B - Magenta
-        const curveB = new THREE.CatmullRomCurve3(pointsB);
-        const tubeGeomB = new THREE.TubeGeometry(curveB, totalPoints * 2, CONFIG.tubeRadius, 8, false);
-        const matB = new THREE.MeshStandardMaterial({
-            color: CONFIG.colors.strandB,
-            emissive: CONFIG.colors.strandB,
-            emissiveIntensity: 0.8,
-            transparent: true,
-            opacity: 0.95,
-            roughness: 0.2,
-            metalness: 0.8
-        });
-        const strandB = new THREE.Mesh(tubeGeomB, matB);
-        dnaGroup.add(strandB);
-        glowMeshes.push(strandB);
+        // Create strand B particle system
+        const strandBSystem = createParticleSystem(
+            strandBPositions, strandBSizes, strandBOpacities,
+            CONFIG.colors.strandB, 2.8
+        );
+        dnaGroup.add(strandBSystem);
+        particleSystems.push(strandBSystem);
 
-        // Rungs + Skill Nodes
-        let nodeIndex = 0;
-        for (let i = 0; i < totalPoints; i += CONFIG.rungInterval) {
-            const t = (i / totalPoints) * Math.PI * 2 * CONFIG.turns;
-            const y = (i / totalPoints) * totalHeight - totalHeight / 2;
+        // Create rung particle system
+        const rungSystem = createParticleSystem(
+            rungPositions, rungSizes, rungOpacities,
+            CONFIG.colors.rung, 2.5
+        );
+        dnaGroup.add(rungSystem);
+        particleSystems.push(rungSystem);
 
-            const startPoint = new THREE.Vector3(
-                CONFIG.radius * Math.cos(t),
-                y,
-                CONFIG.radius * Math.sin(t)
-            );
-            const endPoint = new THREE.Vector3(
-                CONFIG.radius * Math.cos(t + Math.PI),
-                y,
-                CONFIG.radius * Math.sin(t + Math.PI)
-            );
-
-            // Rung
-            const direction = new THREE.Vector3().subVectors(endPoint, startPoint);
-            const rungLength = direction.length();
-            const rungGeom = new THREE.CylinderGeometry(CONFIG.rungRadius, CONFIG.rungRadius, rungLength, 6);
-            const rungMat = new THREE.MeshStandardMaterial({
-                color: CONFIG.colors.rung,
-                emissive: CONFIG.colors.rung,
-                emissiveIntensity: 0.3,
+        // Add bright node spheres at skill positions
+        skillNodePositions.forEach((node) => {
+            const nodeGeom = new THREE.SphereGeometry(0.12, 16, 16);
+            const nodeMat = new THREE.MeshBasicMaterial({
+                color: 0x00f0ff,
                 transparent: true,
-                opacity: 0.5,
-                roughness: 0.5,
-                metalness: 0.5
+                opacity: 0.9
             });
-            const rung = new THREE.Mesh(rungGeom, rungMat);
+            const nodeMesh = new THREE.Mesh(nodeGeom, nodeMat);
+            nodeMesh.position.copy(node.position);
+            dnaGroup.add(nodeMesh);
+        });
+    }
 
-            // Position and orient rung
-            const midPoint = new THREE.Vector3().addVectors(startPoint, endPoint).multiplyScalar(0.5);
-            rung.position.copy(midPoint);
-            rung.quaternion.setFromUnitVectors(
-                new THREE.Vector3(0, 1, 0),
-                direction.normalize()
-            );
-            dnaGroup.add(rung);
+    function createParticleSystem(positions, sizes, opacities, color, sizeMultiplier) {
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+        geometry.setAttribute('opacity', new THREE.Float32BufferAttribute(opacities, 1));
 
-            // Skill node (glowing sphere at alternating ends)
-            const side = nodeIndex % 2 === 0 ? startPoint : endPoint;
-            const nodeGeom = new THREE.SphereGeometry(0.08, 16, 16);
-            const nodeMat = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                emissive: CONFIG.colors.node,
-                emissiveIntensity: 1.2,
-                transparent: true,
-                opacity: 0.9,
-                roughness: 0.1,
-                metalness: 1.0
-            });
-            const node = new THREE.Mesh(nodeGeom, nodeMat);
-            node.position.copy(side);
-            dnaGroup.add(node);
-            glowMeshes.push(node);
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uColor: { value: new THREE.Vector3(color[0], color[1], color[2]) },
+                uTime: { value: 0 },
+                uSizeMultiplier: { value: sizeMultiplier * window.devicePixelRatio }
+            },
+            vertexShader: `
+                attribute float size;
+                attribute float opacity;
+                varying float vOpacity;
+                varying float vDist;
+                uniform float uTime;
+                uniform float uSizeMultiplier;
 
-            // Store node position for label projection
-            skillNodePositions.push({
-                position: side.clone(),
-                side: nodeIndex % 2 === 0 ? 'left' : 'right',
-                index: nodeIndex
-            });
+                void main() {
+                    vOpacity = opacity;
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    vDist = -mvPosition.z;
 
-            nodeIndex++;
-        }
+                    // Size attenuation for depth
+                    float pSize = size * uSizeMultiplier * (300.0 / -mvPosition.z);
+
+                    // Subtle size pulsing
+                    pSize *= 1.0 + 0.15 * sin(uTime * 2.0 + position.y * 0.5);
+
+                    gl_PointSize = pSize;
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 uColor;
+                varying float vOpacity;
+                varying float vDist;
+
+                void main() {
+                    // Circular soft particle
+                    float dist = length(gl_PointCoord - vec2(0.5));
+                    if (dist > 0.5) discard;
+
+                    // Soft glow falloff
+                    float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                    alpha *= vOpacity;
+
+                    // Depth fade
+                    float depthFade = clamp(1.0 - (vDist - 5.0) / 15.0, 0.3, 1.0);
+                    alpha *= depthFade;
+
+                    // Brighter core
+                    vec3 finalColor = uColor + vec3(0.3) * (1.0 - smoothstep(0.0, 0.15, dist));
+
+                    gl_FragColor = vec4(finalColor, alpha);
+                }
+            `,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+
+        return new THREE.Points(geometry, material);
     }
 
     function onResize() {
@@ -205,14 +258,11 @@ const DNAStrand = (() => {
 
     function animate() {
         requestAnimationFrame(animate);
-        time += 0.01;
+        time += 0.016;
 
-        // Subtle idle animation - gentle pulsing of emissive intensity
-        glowMeshes.forEach((mesh, i) => {
-            if (mesh.material.emissiveIntensity !== undefined) {
-                const base = mesh.geometry.type === 'SphereGeometry' ? 1.2 : 0.8;
-                mesh.material.emissiveIntensity = base + Math.sin(time * 2 + i * 0.5) * 0.15;
-            }
+        // Update shader time uniform for pulsing
+        particleSystems.forEach(system => {
+            system.material.uniforms.uTime.value = time;
         });
 
         renderer.render(scene, camera);

@@ -91,6 +91,17 @@ const ScrollController = (() => {
             },
             opacity: 0
         });
+
+        // Fade out blur overlay as user scrolls past hero
+        gsap.to('#dna-blur-overlay', {
+            scrollTrigger: {
+                trigger: '#hero',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            },
+            opacity: 0
+        });
     }
 
     function getIsInDNASection() {

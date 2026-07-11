@@ -42,11 +42,10 @@ const SkillNodes = (() => {
             label.textContent = skill.name;
             label.dataset.index = index;
 
-            // Fixed horizontal position: left side or right side of center
             if (side === 'left') {
-                label.style.left = '8%';
+                label.style.left = '5%';
             } else {
-                label.style.right = '8%';
+                label.style.right = '5%';
                 label.style.left = 'auto';
             }
 
@@ -58,9 +57,8 @@ const SkillNodes = (() => {
 
     function updateVisibility(scrollProgress) {
         const totalSkills = SKILLS.length;
-        // Each skill occupies a window of scroll progress
         const windowPerSkill = 1 / totalSkills;
-        const visibleWindow = 3; // How many skills visible at once
+        const visibleWindow = 3;
 
         SKILLS.forEach((skill, index) => {
             const label = labelElements[index];
@@ -69,14 +67,12 @@ const SkillNodes = (() => {
             const maxDist = (visibleWindow * windowPerSkill);
 
             if (dist < maxDist) {
-                // Calculate vertical position: map skill's relative position to viewport
-                const relativePos = (scrollProgress - skillCenter) / maxDist; // -1 to 1
-                const yPos = 50 + relativePos * -40; // Center at 50%, move up as scroll passes
+                const relativePos = (scrollProgress - skillCenter) / maxDist;
+                const yPos = 50 + relativePos * -40;
 
                 label.style.top = `${yPos}%`;
                 label.style.transform = 'translateY(-50%)';
 
-                // Opacity: strongest at center, fades at edges
                 const opacity = 1 - (dist / maxDist);
                 label.style.opacity = `${Math.pow(opacity, 0.8)}`;
                 label.classList.add('visible');
