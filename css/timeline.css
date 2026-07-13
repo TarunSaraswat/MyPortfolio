@@ -2,6 +2,7 @@
     min-height: 100vh;
     padding: 6rem 2rem;
     position: relative;
+    opacity: 0;
 }
 
 .experience-heading {
@@ -20,6 +21,10 @@
 }
 
 /* Vertical line */
+.timeline {
+    --line-opacity: 0;
+}
+
 .timeline::before {
     content: '';
     position: absolute;
@@ -29,6 +34,7 @@
     width: 2px;
     background: linear-gradient(180deg, var(--cyan), var(--magenta), var(--cyan-dim));
     transform: translateX(-50%);
+    opacity: var(--line-opacity);
 }
 
 .timeline-entry {
@@ -40,14 +46,6 @@
     border: 1px solid var(--cyan-dim);
     border-radius: 4px;
     margin-bottom: 3rem;
-    opacity: 0;
-    transform: translateX(-30px);
-    transition: all 0.6s ease;
-}
-
-.timeline-entry.animate-in {
-    opacity: 1;
-    transform: translateX(0);
 }
 
 .timeline-entry:nth-child(odd) {
@@ -56,11 +54,6 @@
 
 .timeline-entry:nth-child(even) {
     margin-left: auto;
-    transform: translateX(30px);
-}
-
-.timeline-entry:nth-child(even).animate-in {
-    transform: translateX(0);
 }
 
 /* Timeline dot */

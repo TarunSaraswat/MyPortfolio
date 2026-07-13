@@ -67,6 +67,49 @@
     --dir: left;
 }
 
+/* Click hint popup */
+.click-hint {
+    position: fixed;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    padding: 0.7rem 1.5rem;
+    background: rgba(5, 15, 30, 0.9);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    clip-path: polygon(
+        0 4px, 4px 0, calc(100% - 4px) 0, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) 100%,
+        4px 100%, 0 calc(100% - 4px)
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.click-hint.visible {
+    opacity: 1;
+}
+
+.click-hint-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--magenta);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.click-hint-text {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--cyan);
+    letter-spacing: 0.05em;
+}
+
 /* Grouped skill labels */
 .skill-group-heading {
     display: block;

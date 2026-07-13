@@ -59,6 +59,12 @@ body {
     z-index: 10;
 }
 
+/* DNA Zoom-out transition section */
+.dna-transition {
+    height: 200vh;
+    position: relative;
+}
+
 main {
     position: relative;
     z-index: 3;
