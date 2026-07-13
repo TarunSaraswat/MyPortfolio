@@ -201,21 +201,41 @@
         <section class="metrics" id="metrics">
             <h2 class="metrics-heading">Impact</h2>
             <div class="metrics-grid">
-                <div class="metric-card">
+                <div class="metric-card" data-detail="Defined and executed automation strategy across critical user journeys — cart, billing, refunds, and returns — achieving near-complete backend test coverage.">
                     <div class="metric-number"><span class="counter" data-target="93">0</span><span class="metric-suffix">%</span></div>
                     <div class="metric-label">Test Coverage Achieved</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card" data-detail="Built reusable automation frameworks and leveraged AI tools to streamline test execution, cutting regression cycle time by more than half.">
                     <div class="metric-number"><span class="counter" data-target="60">0</span><span class="metric-suffix">%</span></div>
                     <div class="metric-label">Faster Regression Cycles</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card" data-detail="Improved test reliability through shared utilities, better test isolation, and deterministic data setup — eliminating intermittent failures.">
                     <div class="metric-number"><span class="counter" data-target="40">0</span><span class="metric-suffix">%</span></div>
                     <div class="metric-label">Fewer Flaky Tests</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card" data-detail="Designed an automated IVR testing suite using Twilio, replacing expensive manual call-based verification with programmable test flows.">
                     <div class="metric-number"><span class="counter" data-target="95">0</span><span class="metric-suffix">%</span></div>
                     <div class="metric-label">Cost Reduction (IVR)</div>
+                </div>
+            </div>
+            <!-- Click hint for metrics -->
+            <div class="click-hint metrics-hint" id="metrics-hint">
+                <span class="click-hint-label">TIP://</span>
+                <span class="click-hint-text">Click any metric for details</span>
+            </div>
+            <!-- Impact Detail Popup -->
+            <div class="impact-detail" id="impact-detail">
+                <div class="impact-detail-border"></div>
+                <div class="ar-corner ar-corner-tl"></div>
+                <div class="ar-corner ar-corner-tr"></div>
+                <div class="ar-corner ar-corner-bl"></div>
+                <div class="ar-corner ar-corner-br"></div>
+                <div class="ar-scanline"></div>
+                <button class="ar-close" id="impact-detail-close">&#x2715;</button>
+                <div class="impact-detail-content">
+                    <span class="impact-detail-label">IMPACT://</span>
+                    <h3 class="impact-detail-title" id="impact-detail-title"></h3>
+                    <p class="impact-detail-text" id="impact-detail-text"></p>
                 </div>
             </div>
         </section>

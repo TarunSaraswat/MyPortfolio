@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Counter animation for metrics
     initCounters();
 
+    // Impact detail popup
+    initImpactDetail();
+
     // Copy email on click
     document.getElementById('copy-email').addEventListener('click', function () {
         const text = this.dataset.copy;
@@ -73,6 +76,7 @@ function initSectionAnimations() {
     });
 
     // Metric cards
+    let metricsHintShown = false;
     document.querySelectorAll('.metric-card').forEach((card, i) => {
         ScrollTrigger.create({
             trigger: card,
@@ -80,8 +84,50 @@ function initSectionAnimations() {
             once: true,
             onEnter: () => {
                 setTimeout(() => card.classList.add('animate-in'), i * 100);
+                // Show metrics hint on first card enter
+                if (!metricsHintShown) {
+                    metricsHintShown = true;
+                    const hint = document.getElementById('metrics-hint');
+                    hint.classList.add('visible');
+                    setTimeout(() => hint.classList.remove('visible'), 4000);
+                }
             }
         });
+    });
+}
+
+function initImpactDetail() {
+    const detail = document.getElementById('impact-detail');
+    const titleEl = document.getElementById('impact-detail-title');
+    const textEl = document.getElementById('impact-detail-text');
+    const closeBtn = document.getElementById('impact-detail-close');
+
+    document.querySelectorAll('.metric-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const label = card.querySelector('.metric-label').textContent;
+            const text = card.dataset.detail;
+            titleEl.textContent = label;
+            textEl.textContent = text;
+            detail.classList.add('visible');
+        });
+    });
+
+    closeBtn.addEventListener('click', () => {
+        detail.classList.remove('visible');
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+        if (detail.classList.contains('visible') &&
+            !detail.contains(e.target) &&
+            !e.target.closest('.metric-card')) {
+            detail.classList.remove('visible');
+        }
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') detail.classList.remove('visible');
     });
 }
 
