@@ -9,15 +9,16 @@ const DNAStrand = (() => {
     let skillNodePositions = [];
     let time = 0;
     let particleSystems = [];
+    let glowMeshes = [];
 
     const CONFIG = {
         radius: 2.5,           // Wider helix
         turns: 4,
-        pointsPerTurn: 120,    // More points for density
+        pointsPerTurn: 70,     // Reduced for performance
         strandThickness: 0.35, // Thicker particle spread
-        particlesPerPoint: 14, // More particles per cross-section
+        particlesPerPoint: 9,  // Reduced for performance
         rungInterval: 8,
-        rungParticles: 60,     // Denser rungs
+        rungParticles: 35,     // Reduced for performance
         colors: {
             strandA: [0, 0.94, 1],    // Cyan RGB
             strandB: [1, 0, 0.67],    // Magenta RGB
@@ -214,13 +215,8 @@ const DNAStrand = (() => {
             const sprite = new THREE.Mesh(spriteGeom, spriteMat);
             sprite.position.copy(node.position);
             sprite.lookAt(camera.position);
-
-            // Make it always face camera
-            sprite.onBeforeRender = function () {
-                this.lookAt(camera.position);
-            };
-
             dnaGroup.add(sprite);
+            glowMeshes.push(sprite);
         });
     }
 
@@ -248,13 +244,8 @@ const DNAStrand = (() => {
                     vOpacity = opacity;
                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                     vDist = -mvPosition.z;
-
-                    // Size attenuation for depth
                     float pSize = size * uSizeMultiplier * (300.0 / -mvPosition.z);
-
-                    // Subtle size pulsing
                     pSize *= 1.0 + 0.15 * sin(uTime * 2.0 + position.y * 0.5);
-
                     gl_PointSize = pSize;
                     gl_Position = projectionMatrix * mvPosition;
                 }
@@ -265,22 +256,13 @@ const DNAStrand = (() => {
                 varying float vDist;
 
                 void main() {
-                    // Circular soft particle
                     float dist = length(gl_PointCoord - vec2(0.5));
                     if (dist > 0.5) discard;
 
-                    // Soft glow falloff
-                    float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-                    alpha *= vOpacity;
+                    float alpha = (1.0 - dist * 2.0) * vOpacity;
+                    alpha *= clamp(1.0 - (vDist - 5.0) / 15.0, 0.3, 1.0);
 
-                    // Depth fade
-                    float depthFade = clamp(1.0 - (vDist - 5.0) / 15.0, 0.3, 1.0);
-                    alpha *= depthFade;
-
-                    // Brighter core
-                    vec3 finalColor = uColor + vec3(0.3) * (1.0 - smoothstep(0.0, 0.15, dist));
-
-                    gl_FragColor = vec4(finalColor, alpha);
+                    gl_FragColor = vec4(uColor, alpha);
                 }
             `,
             transparent: true,
@@ -297,13 +279,22 @@ const DNAStrand = (() => {
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    let isVisible = true;
+
     function animate() {
         requestAnimationFrame(animate);
+
+        // Skip rendering entirely when DNA is hidden
+        if (!isVisible) return;
+
         time += 0.016;
 
-        // Update shader time uniform for pulsing
         particleSystems.forEach(system => {
             system.material.uniforms.uTime.value = time;
+        });
+
+        glowMeshes.forEach(mesh => {
+            mesh.lookAt(camera.position);
         });
 
         renderer.render(scene, camera);
@@ -339,18 +330,12 @@ const DNAStrand = (() => {
 
     function setOpacity(opacity) {
         if (!dnaGroup) return;
-        dnaGroup.traverse((child) => {
-            if (child.material) {
-                if (child.material.uniforms && child.material.uniforms.uColor) {
-                    // Shader materials - handled via visibility
-                    child.material.opacity = opacity;
-                } else if (child.material.transparent !== undefined) {
-                    child.material.opacity = opacity;
-                }
-            }
-        });
-        // For particle systems, adjust via visibility
-        dnaGroup.visible = opacity > 0.01;
+        const visible = opacity > 0.01;
+        dnaGroup.visible = visible;
+        isVisible = visible;
+        // Hide the canvas element entirely when DNA is gone
+        const canvas = document.getElementById('dna-canvas');
+        if (canvas) canvas.style.display = visible ? '' : 'none';
     }
 
     function getRenderer() {

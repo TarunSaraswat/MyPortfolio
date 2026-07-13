@@ -37,6 +37,7 @@ body {
     height: 100%;
     z-index: 1;
     pointer-events: none;
+    will-change: transform;
 }
 
 #dna-blur-overlay {
@@ -51,6 +52,7 @@ body {
     -webkit-backdrop-filter: blur(5px);
     background: rgba(10, 10, 26, 0.3);
     transition: opacity 0.5s ease;
+    will-change: opacity;
 }
 
 /* Ensure contact links are clickable above canvas layers */
