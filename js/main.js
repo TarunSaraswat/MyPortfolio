@@ -5,6 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize in order
     Particles.init();
+    Atoms.init();
     DNAStrand.init();
     SkillNodes.init();
     ARFrame.init();
