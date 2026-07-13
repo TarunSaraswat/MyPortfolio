@@ -1,6 +1,7 @@
 .experience {
     min-height: 100vh;
     padding: 6rem 2rem;
+    margin-top: 25vh;
     position: relative;
     opacity: 0;
 }
@@ -46,6 +47,38 @@
     border: 1px solid var(--cyan-dim);
     border-radius: 4px;
     margin-bottom: 3rem;
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-entry::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(0, 240, 255, 0.08) 45%,
+        rgba(0, 240, 255, 0.15) 50%,
+        rgba(0, 240, 255, 0.08) 55%,
+        transparent 70%
+    );
+    transform: translateX(-100%) rotate(0deg);
+    transition: none;
+    pointer-events: none;
+}
+
+.timeline-entry:hover::after {
+    transform: translateX(100%) rotate(0deg);
+    transition: transform 0.8s ease;
+}
+
+.timeline-entry:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
 }
 
 .timeline-entry:nth-child(odd) {

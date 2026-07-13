@@ -32,6 +32,9 @@ const ScrollController = (() => {
 
         // DNA zoom-out transition to experience
         setupZoomOutTransition();
+
+        // Particle-to-atom transition after projects
+        setupAtomTransition();
     }
 
     let hintShown = false;
@@ -151,8 +154,8 @@ const ScrollController = (() => {
                 // Keep rotating during zoom-in
                 DNAStrand.setRotationY(Math.PI * 6 + progress * Math.PI * 2);
 
-                // Increase particle density as we zoom in (1x → 5x)
-                Particles.setDensity(1 + progress * 4);
+                // Increase particle density as we zoom in (1x → 2.85x)
+                Particles.setDensity(1 + progress * 2.1);
 
                 // Fade out DNA in the last 40% (particles engulf the view)
                 if (progress > 0.6) {
@@ -234,6 +237,55 @@ const ScrollController = (() => {
                 start: '50% top',
                 end: '55% top',
                 scrub: true
+            }
+        });
+    }
+
+    function setupAtomTransition() {
+        // Shooting star effect: particles fly outward during projects end
+        ScrollTrigger.create({
+            trigger: '#projects',
+            start: '60% center',
+            end: 'bottom top',
+            scrub: 0.5,
+            onUpdate: (self) => {
+                const progress = self.progress;
+                // Particles shoot outward like stars
+                Particles.setShootMode(progress);
+                // Fade out particles
+                Particles.setParticleOpacity(1 - progress);
+            },
+            onLeaveBack: () => {
+                // Reset when scrolling back up
+                Particles.setShootMode(0);
+                Particles.setParticleOpacity(1);
+            }
+        });
+
+        // Metrics: fade from 20% → 100% as particles vanish
+        gsap.fromTo('#metrics', {
+            opacity: 0.2
+        }, {
+            opacity: 1,
+            scrollTrigger: {
+                trigger: '#metrics',
+                start: 'top bottom',
+                end: 'top center',
+                scrub: 1
+            }
+        });
+
+        // Atoms fade in during metrics section
+        ScrollTrigger.create({
+            trigger: '#metrics',
+            start: 'top bottom',
+            end: 'top center',
+            scrub: 1,
+            onUpdate: (self) => {
+                Atoms.setOpacity(self.progress);
+            },
+            onLeaveBack: () => {
+                Atoms.setOpacity(0);
             }
         });
     }
