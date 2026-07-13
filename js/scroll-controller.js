@@ -92,10 +92,21 @@ const ScrollController = (() => {
             opacity: 0
         });
 
-        // Fade out blur overlay as user scrolls past hero
+        // Hero: full blur (1) → 70% blur (0.7) by end of hero
         gsap.to('#dna-blur-overlay', {
             scrollTrigger: {
                 trigger: '#hero',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            },
+            opacity: 0.7
+        });
+
+        // About: 70% blur → 0 by end of about section
+        gsap.to('#dna-blur-overlay', {
+            scrollTrigger: {
+                trigger: '#about',
                 start: 'top top',
                 end: 'bottom top',
                 scrub: true
