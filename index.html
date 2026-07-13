@@ -14,8 +14,12 @@
     <!-- Styles -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/about.css">
     <link rel="stylesheet" href="css/dna-section.css">
     <link rel="stylesheet" href="css/ar-frame.css">
+    <link rel="stylesheet" href="css/timeline.css">
+    <link rel="stylesheet" href="css/projects.css">
+    <link rel="stylesheet" href="css/metrics.css">
     <link rel="stylesheet" href="css/contact.css">
 </head>
 <body>
@@ -38,6 +42,20 @@
             <div class="scroll-indicator">
                 <span>Scroll to explore</span>
                 <div class="scroll-arrow"></div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about" id="about">
+            <div class="about-content">
+                <h2 class="about-heading">About Me</h2>
+                <p class="about-text">
+                    I believe <strong>quality is not a phase — it's a mindset</strong>. As a Lead SDET, I don't just find bugs; I architect systems that prevent them. I bridge the gap between engineering and quality, ensuring every release is reliable, performant, and built to scale.
+                </p>
+                <div class="about-divider"></div>
+                <p class="about-text">
+                    My approach combines <strong>automation-first thinking</strong> with deep technical ownership. From designing scalable test frameworks to leading cross-team integration efforts, I thrive in fast-paced environments where quality and speed must coexist.
+                </p>
             </div>
         </section>
 
@@ -88,6 +106,118 @@
                 </div>
             </div>
         </div>
+
+        <!-- Experience Timeline -->
+        <section class="experience" id="experience">
+            <h2 class="experience-heading">Experience</h2>
+            <div class="timeline">
+                <div class="timeline-entry">
+                    <div class="timeline-role">Lead SDET — Backend</div>
+                    <div class="timeline-duration">Mar 2025 — Present</div>
+                    <ul class="timeline-achievements">
+                        <li>Leading a team of 3 SDETs, owning quality for critical user journeys from cart to order completion</li>
+                        <li>Increased test coverage from 60% to 93%, reducing regression cycles by 60%</li>
+                        <li>Built Slack-based regression orchestration bot using n8n for team-wide test execution</li>
+                    </ul>
+                </div>
+                <div class="timeline-entry">
+                    <div class="timeline-role">Senior SDET — Backend</div>
+                    <div class="timeline-duration">May 2023 — Mar 2025</div>
+                    <ul class="timeline-achievements">
+                        <li>Drove end-to-end test strategy for complex FinTech systems with high security needs</li>
+                        <li>Built a stateless mock response service for isolated integration testing</li>
+                        <li>Led automation-first initiatives, increasing coverage by 30% across new microservices</li>
+                    </ul>
+                </div>
+                <div class="timeline-entry">
+                    <div class="timeline-role">SDET — Backend + Web</div>
+                    <div class="timeline-duration">Sep 2021 — May 2023</div>
+                    <ul class="timeline-achievements">
+                        <li>Designed a Twilio-based IVR testing suite, cutting testing costs by 95%</li>
+                        <li>Created Django-based performance monitoring suite with InfluxDB</li>
+                        <li>Built daily automation monitoring and alerting via Slack</li>
+                    </ul>
+                </div>
+                <div class="timeline-entry">
+                    <div class="timeline-role">Intern — Software Development</div>
+                    <div class="timeline-duration">Jun 2020 — Jul 2020</div>
+                    <ul class="timeline-achievements">
+                        <li>Project-based training in Java and automation fundamentals</li>
+                        <li>Robotic Process Automation using UI Path</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section class="projects" id="projects">
+            <h2 class="projects-heading">Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-title">Regression Orchestration Bot</div>
+                    <div class="project-desc">Slack-based bot enabling teams to trigger targeted test suites by service and environment, improving accessibility and reducing manual effort.</div>
+                    <div class="project-impact">↑ Team-wide test execution with zero manual setup</div>
+                    <div class="project-tags">
+                        <span class="project-tag">n8n</span>
+                        <span class="project-tag">Slack</span>
+                        <span class="project-tag">Automation</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-title">Stateless Mock Service</div>
+                    <div class="project-desc">A configurable mock response service allowing QA teams to test against simulated backends without external dependencies.</div>
+                    <div class="project-impact">↑ Isolated testing with zero third-party coupling</div>
+                    <div class="project-tags">
+                        <span class="project-tag">Java</span>
+                        <span class="project-tag">REST</span>
+                        <span class="project-tag">Microservices</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-title">IVR Testing Suite</div>
+                    <div class="project-desc">Automated telephony testing framework using Twilio, replacing manual call-based verification with programmable test flows.</div>
+                    <div class="project-impact">↓ 95% reduction in testing costs</div>
+                    <div class="project-tags">
+                        <span class="project-tag">Twilio</span>
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">IVR</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-title">Performance Monitoring Suite</div>
+                    <div class="project-desc">Django-based performance testing framework with InfluxDB for tracking data consistency and system health over time.</div>
+                    <div class="project-impact">↑ Continuous performance visibility across services</div>
+                    <div class="project-tags">
+                        <span class="project-tag">Django</span>
+                        <span class="project-tag">InfluxDB</span>
+                        <span class="project-tag">Monitoring</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics Section -->
+        <section class="metrics" id="metrics">
+            <h2 class="metrics-heading">Impact</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-number"><span class="counter" data-target="93">0</span><span class="metric-suffix">%</span></div>
+                    <div class="metric-label">Test Coverage Achieved</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number"><span class="counter" data-target="60">0</span><span class="metric-suffix">%</span></div>
+                    <div class="metric-label">Faster Regression Cycles</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number"><span class="counter" data-target="40">0</span><span class="metric-suffix">%</span></div>
+                    <div class="metric-label">Fewer Flaky Tests</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number"><span class="counter" data-target="95">0</span><span class="metric-suffix">%</span></div>
+                    <div class="metric-label">Cost Reduction (IVR)</div>
+                </div>
+            </div>
+        </section>
 
         <!-- Contact Section -->
         <section class="contact" id="contact">
