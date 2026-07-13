@@ -83,32 +83,29 @@ const SkillNodes = (() => {
         });
     }
 
-    function updateVisibility(scrollProgress) {
-        const totalSkills = SKILLS.length;
-        const windowPerSkill = 1 / totalSkills;
-        const visibleWindow = 3;
+    // Pre-compute constants
+    const totalSkills = SKILLS.length;
+    const windowPerSkill = 1 / totalSkills;
+    const visibleWindow = 3;
+    const maxDist = visibleWindow * windowPerSkill;
 
-        SKILLS.forEach((skill, index) => {
+    function updateVisibility(scrollProgress) {
+        for (let index = 0; index < totalSkills; index++) {
             const label = labelElements[index];
             const skillCenter = (index + 0.5) / totalSkills;
             const dist = Math.abs(scrollProgress - skillCenter);
-            const maxDist = (visibleWindow * windowPerSkill);
 
             if (dist < maxDist) {
                 const relativePos = (scrollProgress - skillCenter) / maxDist;
-                const yPos = 50 + relativePos * -40;
-
-                label.style.top = `${yPos}%`;
+                label.style.top = `${50 + relativePos * -40}%`;
                 label.style.transform = 'translateY(-50%)';
-
-                const opacity = 1 - (dist / maxDist);
-                label.style.opacity = `${Math.pow(opacity, 0.8)}`;
+                label.style.opacity = Math.pow(1 - dist / maxDist, 0.8);
                 label.classList.add('visible');
-            } else {
+            } else if (label.classList.contains('visible')) {
                 label.style.opacity = '0';
                 label.classList.remove('visible');
             }
-        });
+        }
     }
 
     function onSkillClick(index) {

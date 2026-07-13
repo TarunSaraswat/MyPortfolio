@@ -7,8 +7,6 @@ const Particles = (() => {
     let particles = [];
     let canvas, ctx;
     let baseCount = 80;
-    let densityMultiplier = 1;
-    let targetDensity = 1;
 
     function init() {
         canvas = document.createElement('canvas');
@@ -62,7 +60,6 @@ const Particles = (() => {
     let particleOpacity = 1;
 
     function setDensity(multiplier) {
-        targetDensity = multiplier;
         const targetCount = Math.max(0, Math.floor(baseCount * multiplier));
 
         // Particles grow bigger as we "zoom in"
@@ -89,30 +86,43 @@ const Particles = (() => {
         particleOpacity = val;
     }
 
+    // Pre-computed colors
+    const CYAN_COLOR = 'hsl(185, 100%, 70%)';
+    const MAGENTA_COLOR = 'hsl(300, 100%, 70%)';
+
     function animate() {
         requestAnimationFrame(animate);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (particleOpacity <= 0) return;
+        if (particleOpacity <= 0 && shootMode <= 0) {
+            if (canvas.style.display !== 'none') canvas.style.display = 'none';
+            return;
+        }
+        if (canvas.style.display === 'none') canvas.style.display = '';
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
+        // Set shadow for glow effect (applied once, not per particle)
+        if (glowIntensity > 0.1) {
+            ctx.shadowBlur = 8 * glowIntensity;
+        } else {
+            ctx.shadowBlur = 0;
+        }
+
         particles.forEach(p => {
             if (shootMode > 0) {
-                // Shooting star mode: particles fly outward from center
                 const dx = p.x - centerX;
                 const dy = p.y - centerY;
                 const dist = Math.sqrt(dx * dx + dy * dy) || 1;
                 const dirX = dx / dist;
                 const dirY = dy / dist;
 
-                // Accelerate outward
                 const speed = 3 + shootMode * 12;
                 p.x += dirX * speed;
                 p.y += dirY * speed;
 
-                // Reset particles that go off-screen back near center
                 if (p.x < -50 || p.x > canvas.width + 50 || p.y < -50 || p.y > canvas.height + 50) {
                     const angle = Math.random() * Math.PI * 2;
                     const r = Math.random() * 50;
@@ -120,7 +130,6 @@ const Particles = (() => {
                     p.y = centerY + Math.sin(angle) * r;
                 }
             } else {
-                // Normal drift
                 p.x += p.speedX * sizeMultiplier;
                 p.y += p.speedY * sizeMultiplier;
 
@@ -132,43 +141,37 @@ const Particles = (() => {
 
             const size = p.size * sizeMultiplier;
             const opacity = Math.min(1, p.opacity + glowIntensity * 0.3) * particleOpacity;
+            const color = p.hue === 185 ? CYAN_COLOR : MAGENTA_COLOR;
 
-            // Draw trail when shooting
+            // Trail when shooting
             if (shootMode > 0.3) {
                 const dx = p.x - centerX;
                 const dy = p.y - centerY;
                 const dist = Math.sqrt(dx * dx + dy * dy) || 1;
                 const trailLen = Math.min(20, shootMode * 15);
-                const trailX = p.x - (dx / dist) * trailLen;
-                const trailY = p.y - (dy / dist) * trailLen;
 
+                ctx.globalAlpha = opacity * 0.5;
                 ctx.beginPath();
-                ctx.moveTo(trailX, trailY);
+                ctx.moveTo(p.x - (dx / dist) * trailLen, p.y - (dy / dist) * trailLen);
                 ctx.lineTo(p.x, p.y);
-                ctx.strokeStyle = `hsla(${p.hue}, 100%, 70%, ${opacity * 0.5})`;
+                ctx.strokeStyle = color;
                 ctx.lineWidth = size * 0.8;
                 ctx.stroke();
             }
 
-            // Draw outer glow when intensity is high
-            if (glowIntensity > 0.1) {
-                const glowRadius = size * (2 + glowIntensity * 2);
-                const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowRadius);
-                gradient.addColorStop(0, `hsla(${p.hue}, 100%, 75%, ${opacity * glowIntensity * 0.4})`);
-                gradient.addColorStop(0.4, `hsla(${p.hue}, 100%, 60%, ${opacity * glowIntensity * 0.15})`);
-                gradient.addColorStop(1, `hsla(${p.hue}, 100%, 50%, 0)`);
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, glowRadius, 0, Math.PI * 2);
-                ctx.fillStyle = gradient;
-                ctx.fill();
-            }
-
-            // Core particle
+            // Core particle with shadow-based glow
+            ctx.globalAlpha = opacity;
+            ctx.shadowColor = color;
             ctx.beginPath();
             ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-            ctx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${opacity})`;
+            ctx.fillStyle = color;
             ctx.fill();
         });
+
+        // Reset
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
     }
 
     return { init, setDensity, setShootMode, setParticleOpacity };

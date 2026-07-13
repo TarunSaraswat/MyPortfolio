@@ -4,17 +4,18 @@
  */
 
 const ScrollController = (() => {
-    let scrollTriggerInstance = null;
-    let isInDNASection = false;
+    let lenis = null;
 
     function init() {
         gsap.registerPlugin(ScrollTrigger);
 
         // Smooth scroll with Lenis
-        const lenis = new Lenis({
-            duration: 1.4,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothWheel: true
+        lenis = new Lenis({
+            duration: 1.8,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -8 * t)),
+            smoothWheel: true,
+            wheelMultiplier: 0.9,
+            lerp: 0.07
         });
 
         lenis.on('scroll', ScrollTrigger.update);
@@ -38,38 +39,31 @@ const ScrollController = (() => {
     }
 
     let hintShown = false;
-    let hintTimeout = null;
 
     function setupDNAScrollTrigger() {
-        scrollTriggerInstance = ScrollTrigger.create({
+        ScrollTrigger.create({
             trigger: '#dna-section',
             start: 'top top',
             end: 'bottom bottom',
             scrub: 1.5,
             onEnter: () => {
-                isInDNASection = true;
                 document.getElementById('skills-container').classList.add('active');
                 // Show click hint only on first scroll-down
                 if (!hintShown) {
                     hintShown = true;
                     const hint = document.getElementById('click-hint');
                     hint.classList.add('visible');
-                    hintTimeout = setTimeout(() => {
-                        hint.classList.remove('visible');
-                    }, 4000);
+                    setTimeout(() => hint.classList.remove('visible'), 4000);
                 }
             },
             onLeave: () => {
-                isInDNASection = false;
                 document.getElementById('skills-container').classList.remove('active');
                 document.getElementById('click-hint').classList.remove('visible');
             },
             onEnterBack: () => {
-                isInDNASection = true;
                 document.getElementById('skills-container').classList.add('active');
             },
             onLeaveBack: () => {
-                isInDNASection = false;
                 document.getElementById('skills-container').classList.remove('active');
                 document.getElementById('click-hint').classList.remove('visible');
             },
@@ -123,21 +117,30 @@ const ScrollController = (() => {
             opacity: 0.7
         });
 
-        // About: 70% blur → 0 by end of about section
+        // About: 70% blur → 0 by end of about section, then hide element
         gsap.to('#dna-blur-overlay', {
             scrollTrigger: {
                 trigger: '#about',
                 start: 'top top',
                 end: 'bottom top',
-                scrub: true
+                scrub: true,
+                onLeave: () => {
+                    document.getElementById('dna-blur-overlay').style.display = 'none';
+                },
+                onEnterBack: () => {
+                    document.getElementById('dna-blur-overlay').style.display = '';
+                }
             },
             opacity: 0
         });
     }
 
     function setupZoomOutTransition() {
-        const baseCameraZ = 12; // Normal camera Z
-        const zoomedInZ = 1.5; // Very close = zooming INTO the DNA
+        const baseCameraZ = 12;
+        const zoomedInZ = 1.5;
+        const cameraRange = baseCameraZ - zoomedInZ;
+        const PI6 = Math.PI * 6;
+        const PI2 = Math.PI * 2;
 
         ScrollTrigger.create({
             trigger: '#dna-transition',
@@ -147,23 +150,12 @@ const ScrollController = (() => {
             onUpdate: (self) => {
                 const progress = self.progress;
 
-                // Zoom IN camera (DNA gets huge, we fly into it)
-                const newZ = baseCameraZ - (baseCameraZ - zoomedInZ) * progress;
-                DNAStrand.setCameraZ(newZ);
-
-                // Keep rotating during zoom-in
-                DNAStrand.setRotationY(Math.PI * 6 + progress * Math.PI * 2);
-
-                // Increase particle density as we zoom in (1x → 2.85x)
+                DNAStrand.setCameraZ(baseCameraZ - cameraRange * progress);
+                DNAStrand.setRotationY(PI6 + progress * PI2);
                 Particles.setDensity(1 + progress * 2.1);
 
-                // Fade out DNA in the last 40% (particles engulf the view)
-                if (progress > 0.6) {
-                    const fadeProgress = (progress - 0.6) / 0.4;
-                    DNAStrand.setOpacity(1 - fadeProgress);
-                } else {
-                    DNAStrand.setOpacity(1);
-                }
+                // Fade out DNA in the last 40%
+                DNAStrand.setOpacity(progress > 0.6 ? 1 - (progress - 0.6) * 2.5 : 1);
             }
         });
 
@@ -183,18 +175,6 @@ const ScrollController = (() => {
         });
 
         // Timeline vertical line fades in as DNA fades out
-        gsap.fromTo('.timeline::before', {
-            opacity: 0
-        }, {
-            opacity: 1,
-            scrollTrigger: {
-                trigger: '#dna-transition',
-                start: '55% top',
-                end: '80% top',
-                scrub: 1.5
-            }
-        });
-        // Use the timeline element itself since pseudo-elements can't be targeted by GSAP
         gsap.fromTo('.timeline', {
             '--line-opacity': 0
         }, {
@@ -241,6 +221,8 @@ const ScrollController = (() => {
         });
     }
 
+    let isSnapping = false;
+
     function setupAtomTransition() {
         // Shooting star effect: particles fly outward during projects end
         ScrollTrigger.create({
@@ -250,17 +232,52 @@ const ScrollController = (() => {
             scrub: 0.5,
             onUpdate: (self) => {
                 const progress = self.progress;
-                // Particles shoot outward like stars
                 Particles.setShootMode(progress);
-                // Fade out particles
                 Particles.setParticleOpacity(1 - progress);
             },
             onLeaveBack: () => {
-                // Reset when scrolling back up
                 Particles.setShootMode(0);
                 Particles.setParticleOpacity(1);
             }
         });
+
+        // Snap logic between projects and metrics
+        const projectsEl = document.getElementById('projects');
+        const metricsEl = document.getElementById('metrics');
+        const vh = window.innerHeight;
+        let prevScrollY = window.pageYOffset;
+        let scrollDir = 1;
+
+        function snapCheck() {
+            if (isSnapping) return;
+
+            const currentScroll = window.pageYOffset;
+            scrollDir = currentScroll > prevScrollY ? 1 : -1;
+            prevScrollY = currentScroll;
+
+            const projectsRect = projectsEl.getBoundingClientRect();
+            const metricsRect = metricsEl.getBoundingClientRect();
+
+            // Scrolling DOWN: if projects bottom goes above 75% of viewport
+            if (scrollDir > 0 && projectsRect.bottom < vh * 0.75 && projectsRect.bottom > 0) {
+                isSnapping = true;
+                lenis.stop();
+                const targetY = metricsEl.offsetTop - (vh / 2) + (metricsEl.offsetHeight / 2);
+                window.scrollTo({ top: targetY, behavior: 'smooth' });
+                setTimeout(() => { lenis.start(); isSnapping = false; }, 1200);
+            }
+
+            // Scrolling UP: if metrics top goes below 25% of viewport (into bottom 75%)
+            if (scrollDir < 0 && metricsRect.top > vh * 0.25 && metricsRect.top < vh) {
+                isSnapping = true;
+                lenis.stop();
+                const targetY = projectsEl.offsetTop - (vh / 2) + (projectsEl.offsetHeight / 2);
+                window.scrollTo({ top: targetY, behavior: 'smooth' });
+                setTimeout(() => { lenis.start(); isSnapping = false; }, 1200);
+            }
+        }
+
+        window.addEventListener('scroll', snapCheck);
 
         // Metrics: fade from 20% → 100% as particles vanish
         gsap.fromTo('#metrics', {
@@ -290,9 +307,5 @@ const ScrollController = (() => {
         });
     }
 
-    function getIsInDNASection() {
-        return isInDNASection;
-    }
-
-    return { init, getIsInDNASection };
+    return { init };
 })();
