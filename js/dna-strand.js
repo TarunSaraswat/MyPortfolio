@@ -333,6 +333,26 @@ const DNAStrand = (() => {
         if (dnaGroup) dnaGroup.position.x = x;
     }
 
+    function setCameraZ(z) {
+        if (camera) camera.position.z = z;
+    }
+
+    function setOpacity(opacity) {
+        if (!dnaGroup) return;
+        dnaGroup.traverse((child) => {
+            if (child.material) {
+                if (child.material.uniforms && child.material.uniforms.uColor) {
+                    // Shader materials - handled via visibility
+                    child.material.opacity = opacity;
+                } else if (child.material.transparent !== undefined) {
+                    child.material.opacity = opacity;
+                }
+            }
+        });
+        // For particle systems, adjust via visibility
+        dnaGroup.visible = opacity > 0.01;
+    }
+
     function getRenderer() {
         return renderer;
     }
@@ -345,6 +365,8 @@ const DNAStrand = (() => {
         getSkillNodePositions,
         setRotationY,
         setPositionY,
-        setPositionX
+        setPositionX,
+        setCameraZ,
+        setOpacity
     };
 })();

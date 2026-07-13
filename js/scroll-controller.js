@@ -29,7 +29,13 @@ const ScrollController = (() => {
 
         // Hero fade out on scroll
         setupHeroFade();
+
+        // DNA zoom-out transition to experience
+        setupZoomOutTransition();
     }
+
+    let hintShown = false;
+    let hintTimeout = null;
 
     function setupDNAScrollTrigger() {
         scrollTriggerInstance = ScrollTrigger.create({
@@ -40,10 +46,20 @@ const ScrollController = (() => {
             onEnter: () => {
                 isInDNASection = true;
                 document.getElementById('skills-container').classList.add('active');
+                // Show click hint only on first scroll-down
+                if (!hintShown) {
+                    hintShown = true;
+                    const hint = document.getElementById('click-hint');
+                    hint.classList.add('visible');
+                    hintTimeout = setTimeout(() => {
+                        hint.classList.remove('visible');
+                    }, 4000);
+                }
             },
             onLeave: () => {
                 isInDNASection = false;
                 document.getElementById('skills-container').classList.remove('active');
+                document.getElementById('click-hint').classList.remove('visible');
             },
             onEnterBack: () => {
                 isInDNASection = true;
@@ -52,6 +68,7 @@ const ScrollController = (() => {
             onLeaveBack: () => {
                 isInDNASection = false;
                 document.getElementById('skills-container').classList.remove('active');
+                document.getElementById('click-hint').classList.remove('visible');
             },
             onUpdate: (self) => {
                 const progress = self.progress;
@@ -92,7 +109,7 @@ const ScrollController = (() => {
             opacity: 0
         });
 
-        // Fade out blur overlay as user scrolls past hero
+        // Hero: full blur (1) → 70% blur (0.7) by end of hero
         gsap.to('#dna-blur-overlay', {
             scrollTrigger: {
                 trigger: '#hero',
@@ -100,7 +117,124 @@ const ScrollController = (() => {
                 end: 'bottom top',
                 scrub: true
             },
+            opacity: 0.7
+        });
+
+        // About: 70% blur → 0 by end of about section
+        gsap.to('#dna-blur-overlay', {
+            scrollTrigger: {
+                trigger: '#about',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            },
             opacity: 0
+        });
+    }
+
+    function setupZoomOutTransition() {
+        const baseCameraZ = 12; // Normal camera Z
+        const zoomedInZ = 1.5; // Very close = zooming INTO the DNA
+
+        ScrollTrigger.create({
+            trigger: '#dna-transition',
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.5,
+            onUpdate: (self) => {
+                const progress = self.progress;
+
+                // Zoom IN camera (DNA gets huge, we fly into it)
+                const newZ = baseCameraZ - (baseCameraZ - zoomedInZ) * progress;
+                DNAStrand.setCameraZ(newZ);
+
+                // Keep rotating during zoom-in
+                DNAStrand.setRotationY(Math.PI * 6 + progress * Math.PI * 2);
+
+                // Increase particle density as we zoom in (1x → 5x)
+                Particles.setDensity(1 + progress * 4);
+
+                // Fade out DNA in the last 40% (particles engulf the view)
+                if (progress > 0.6) {
+                    const fadeProgress = (progress - 0.6) / 0.4;
+                    DNAStrand.setOpacity(1 - fadeProgress);
+                } else {
+                    DNAStrand.setOpacity(1);
+                }
+            }
+        });
+
+        // Experience heading fades in
+        gsap.fromTo('.experience-heading', {
+            opacity: 0,
+            scale: 0.5
+        }, {
+            opacity: 1,
+            scale: 1,
+            scrollTrigger: {
+                trigger: '#dna-transition',
+                start: '60% top',
+                end: '85% top',
+                scrub: 1.5
+            }
+        });
+
+        // Timeline vertical line fades in as DNA fades out
+        gsap.fromTo('.timeline::before', {
+            opacity: 0
+        }, {
+            opacity: 1,
+            scrollTrigger: {
+                trigger: '#dna-transition',
+                start: '55% top',
+                end: '80% top',
+                scrub: 1.5
+            }
+        });
+        // Use the timeline element itself since pseudo-elements can't be targeted by GSAP
+        gsap.fromTo('.timeline', {
+            '--line-opacity': 0
+        }, {
+            '--line-opacity': 1,
+            scrollTrigger: {
+                trigger: '#dna-transition',
+                start: '55% top',
+                end: '80% top',
+                scrub: 1.5
+            }
+        });
+
+        // Experience entries slide in from far off-screen sides
+        const vw = window.innerWidth;
+        document.querySelectorAll('.timeline-entry').forEach((entry, i) => {
+            const isLeft = i % 2 === 0;
+            gsap.fromTo(entry, {
+                opacity: 0,
+                x: isLeft ? -vw : vw,
+                scale: 0.6
+            }, {
+                opacity: 1,
+                x: 0,
+                scale: 1,
+                scrollTrigger: {
+                    trigger: '#dna-transition',
+                    start: `${55 + i * 8}% top`,
+                    end: `${80 + i * 5}% top`,
+                    scrub: 1.5
+                }
+            });
+        });
+
+        // Make experience section visible (remove initial hidden state)
+        gsap.to('#experience', {
+            opacity: 1,
+            scale: 1,
+            scrollTrigger: {
+                trigger: '#dna-transition',
+                start: '50% top',
+                end: '55% top',
+                scrub: true
+            }
         });
     }
 

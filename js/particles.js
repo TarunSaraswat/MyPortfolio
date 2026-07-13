@@ -1,10 +1,14 @@
 /**
  * Particles - Floating background particles for depth
+ * Supports dynamic density changes for zoom-out transition
  */
 
 const Particles = (() => {
     let particles = [];
     let canvas, ctx;
+    let baseCount = 80;
+    let densityMultiplier = 1;
+    let targetDensity = 1;
 
     function init() {
         canvas = document.createElement('canvas');
@@ -22,7 +26,7 @@ const Particles = (() => {
         ctx = canvas.getContext('2d');
 
         resize();
-        createParticles();
+        createParticles(baseCount);
         animate();
 
         window.addEventListener('resize', resize);
@@ -33,20 +37,36 @@ const Particles = (() => {
         canvas.height = window.innerHeight;
     }
 
-    function createParticles() {
-        const count = Math.min(80, Math.floor(window.innerWidth / 20));
+    function createParticles(count) {
         particles = [];
-
         for (let i = 0; i < count; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 1.5 + 0.5,
-                speedX: (Math.random() - 0.5) * 0.3,
-                speedY: (Math.random() - 0.5) * 0.2,
-                opacity: Math.random() * 0.4 + 0.1,
-                hue: Math.random() > 0.7 ? 300 : 185 // magenta or cyan
-            });
+            particles.push(makeParticle());
+        }
+    }
+
+    function makeParticle() {
+        return {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.5 + 0.5,
+            speedX: (Math.random() - 0.5) * 0.3,
+            speedY: (Math.random() - 0.5) * 0.2,
+            opacity: Math.random() * 0.4 + 0.1,
+            hue: Math.random() > 0.7 ? 300 : 185
+        };
+    }
+
+    function setDensity(multiplier) {
+        targetDensity = multiplier;
+        const targetCount = Math.floor(baseCount * multiplier);
+
+        // Add particles if needed
+        while (particles.length < targetCount) {
+            particles.push(makeParticle());
+        }
+        // Remove particles if too many
+        while (particles.length > targetCount) {
+            particles.pop();
         }
     }
 
@@ -58,7 +78,6 @@ const Particles = (() => {
             p.x += p.speedX;
             p.y += p.speedY;
 
-            // Wrap around
             if (p.x < 0) p.x = canvas.width;
             if (p.x > canvas.width) p.x = 0;
             if (p.y < 0) p.y = canvas.height;
@@ -71,5 +90,5 @@ const Particles = (() => {
         });
     }
 
-    return { init };
+    return { init, setDensity };
 })();

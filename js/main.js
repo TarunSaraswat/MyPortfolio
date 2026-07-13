@@ -57,17 +57,7 @@ function initSectionAnimations() {
         }
     });
 
-    // Timeline entries stagger in
-    document.querySelectorAll('.timeline-entry').forEach((entry, i) => {
-        ScrollTrigger.create({
-            trigger: entry,
-            start: 'top 85%',
-            once: true,
-            onEnter: () => {
-                setTimeout(() => entry.classList.add('animate-in'), i * 150);
-            }
-        });
-    });
+    // Timeline entries are animated by scroll-controller zoom transition
 
     // Project cards stagger in
     document.querySelectorAll('.project-card').forEach((card, i) => {
