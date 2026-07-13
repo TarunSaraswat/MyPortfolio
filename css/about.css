@@ -1,0 +1,48 @@
+.about {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem;
+    position: relative;
+}
+
+.about-content {
+    max-width: 700px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.about-content.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.8s ease;
+}
+
+.about-heading {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: var(--cyan);
+}
+
+.about-text {
+    font-size: 1.35rem;
+    line-height: 1.9;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.about-text strong {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.about-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    margin: 2rem auto;
+    border-radius: 1px;
+}
