@@ -19,6 +19,14 @@
     background-clip: text;
 }
 
+.contact-intro {
+    max-width: 620px;
+    margin: -1.8rem auto 2.5rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    text-align: center;
+}
+
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -41,6 +49,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    font: inherit;
+    text-align: left;
 }
 
 .contact-item::before {
@@ -75,7 +86,10 @@
 .contact-value {
     font-size: 1rem;
     color: var(--text-primary);
+    overflow-wrap: anywhere;
 }
+
+.contact-static { cursor: default; }
 
 .contact-copy {
     cursor: pointer;
@@ -99,6 +113,7 @@
 }
 
 @media (max-width: 768px) {
+    .contact { padding-inline: 1.25rem; }
     .contact-grid {
         grid-template-columns: 1fr;
     }

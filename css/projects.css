@@ -12,6 +12,22 @@
     color: var(--cyan);
 }
 
+.projects-intro {
+    max-width: 680px;
+    margin: -2.5rem auto 3.5rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    text-align: center;
+}
+
+.project-index {
+    margin-bottom: 0.8rem;
+    color: var(--magenta);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+}
+
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -74,6 +90,50 @@
     margin-bottom: 1.2rem;
 }
 
+.project-details {
+    display: grid;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.project-details dt {
+    margin-bottom: 0.2rem;
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.project-details dd {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.project-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 1rem 0;
+    padding: 0.65rem;
+    border: 1px solid rgba(0, 240, 255, 0.14);
+    overflow-x: auto;
+}
+
+.project-flow span {
+    flex: 1 0 auto;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    text-align: center;
+}
+
+.project-flow i {
+    color: var(--cyan);
+    font-style: normal;
+}
+
 .project-impact {
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -99,6 +159,7 @@
 }
 
 @media (max-width: 768px) {
+    .projects { padding-inline: 1.25rem; }
     .projects-grid {
         grid-template-columns: 1fr;
     }
