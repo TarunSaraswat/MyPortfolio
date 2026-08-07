@@ -9,7 +9,8 @@ const Atoms = (() => {
     let atomTextures = []; // Pre-rendered atom images
     let opacity = 0;
     let targetOpacity = 0;
-    const ATOM_COUNT = 8;
+    const ATOM_COUNT = window.innerWidth <= 768 ? 5 : 8;
+    let isPaused = false;
 
     function init() {
         canvas = document.createElement('canvas');
@@ -37,7 +38,7 @@ const Atoms = (() => {
 
         colors.forEach(color => {
             ringCounts.forEach(rings => {
-                const size = 800;
+                const size = window.innerWidth <= 768 ? 480 : 640;
                 const offscreen = document.createElement('canvas');
                 offscreen.width = size;
                 offscreen.height = size;
@@ -151,6 +152,8 @@ const Atoms = (() => {
     function animate() {
         requestAnimationFrame(animate);
 
+        if (isPaused || document.hidden) return;
+
         if (opacity < 0.01 && targetOpacity < 0.01) return;
         opacity += (targetOpacity - opacity) * 0.05;
 
@@ -184,5 +187,9 @@ const Atoms = (() => {
         });
     }
 
-    return { init, setOpacity };
+    function setPaused(paused) {
+        isPaused = paused;
+    }
+
+    return { init, setOpacity, setPaused };
 })();

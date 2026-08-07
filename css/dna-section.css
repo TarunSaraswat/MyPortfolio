@@ -21,7 +21,7 @@
 
 .skill-label {
     position: absolute;
-    pointer-events: all;
+    pointer-events: none;
     cursor: pointer;
     font-family: var(--font-mono);
     font-size: 1.8rem;
@@ -37,6 +37,17 @@
     white-space: nowrap;
     letter-spacing: 0.05em;
     box-shadow: 0 0 12px rgba(0, 240, 255, 0.1), inset 0 0 12px rgba(0, 240, 255, 0.03);
+    appearance: none;
+    text-align: left;
+    visibility: hidden;
+}
+
+.skill-label.visible { visibility: visible; }
+.skill-label.is-interactive { pointer-events: auto; }
+
+.skills-container:not(.active) .skill-label {
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 .skill-label:hover {
@@ -133,3 +144,86 @@
     letter-spacing: 0.05em;
 }
 
+.skills-static-header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .dna-section { height: 430vh; }
+
+    .skill-label {
+        max-width: 42vw;
+        padding: 0.8rem 1rem;
+        font-size: clamp(0.82rem, 3.5vw, 1.05rem);
+        white-space: normal;
+    }
+
+    .skill-label.left { left: 3% !important; }
+    .skill-label.right { right: 3% !important; }
+    .skill-label::after { width: 20px; }
+    .skill-label.left::after { right: -20px; }
+    .skill-label.right::after { left: -20px; }
+    .skill-group-heading { font-size: 1rem; }
+    .skill-group-items { font-size: 0.62rem; }
+
+    .click-hint {
+        width: max-content;
+        max-width: calc(100vw - 2rem);
+        padding: 0.8rem 1rem;
+        gap: 0.55rem;
+    }
+
+    .click-hint-text {
+        font-size: 0.72rem;
+        white-space: nowrap;
+    }
+}
+
+.no-motion .dna-section {
+    height: auto;
+    padding: 6rem 1.25rem;
+}
+
+.no-motion .skills-static-header {
+    position: relative;
+    width: auto;
+    height: auto;
+    margin-bottom: 2rem;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    text-align: center;
+}
+
+.no-motion .skills-static-header h2 { color: var(--cyan); }
+
+.no-motion .skills-container {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.7rem;
+    width: min(100%, 900px);
+    height: auto;
+    margin: 0 auto;
+    opacity: 1;
+}
+
+.no-motion .skill-label {
+    position: relative;
+    inset: auto !important;
+    width: 100%;
+    max-width: none;
+    padding: 0.8rem;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    font-size: 0.85rem;
+}
+
+.no-motion .skill-label::after { display: none; }

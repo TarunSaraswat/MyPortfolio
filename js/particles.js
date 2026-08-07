@@ -6,7 +6,8 @@
 const Particles = (() => {
     let particles = [];
     let canvas, ctx;
-    let baseCount = 80;
+    let baseCount = window.innerWidth <= 768 ? 45 : 80;
+    let isPaused = false;
 
     function init() {
         canvas = document.createElement('canvas');
@@ -93,6 +94,8 @@ const Particles = (() => {
     function animate() {
         requestAnimationFrame(animate);
 
+        if (isPaused || document.hidden) return;
+
         if (particleOpacity <= 0 && shootMode <= 0) {
             if (canvas.style.display !== 'none') canvas.style.display = 'none';
             return;
@@ -174,5 +177,9 @@ const Particles = (() => {
         ctx.shadowColor = 'transparent';
     }
 
-    return { init, setDensity, setShootMode, setParticleOpacity };
+    function setPaused(paused) {
+        isPaused = paused;
+    }
+
+    return { init, setDensity, setShootMode, setParticleOpacity, setPaused };
 })();

@@ -42,7 +42,8 @@ const DNAStrand = (() => {
             alpha: true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const pixelRatioCap = window.innerWidth <= 768 ? 1 : 1.5;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioCap));
 
         // Build particle DNA
         dnaGroup = new THREE.Group();
@@ -280,12 +281,13 @@ const DNAStrand = (() => {
     }
 
     let isVisible = true;
+    let isPaused = false;
 
     function animate() {
         requestAnimationFrame(animate);
 
         // Skip rendering entirely when DNA is hidden
-        if (!isVisible) return;
+        if (!isVisible || isPaused || document.hidden) return;
 
         time += 0.016;
 
@@ -342,6 +344,10 @@ const DNAStrand = (() => {
         return renderer;
     }
 
+    function setPaused(paused) {
+        isPaused = paused;
+    }
+
     return {
         init,
         getGroup,
@@ -352,6 +358,7 @@ const DNAStrand = (() => {
         setPositionY,
         setPositionX,
         setCameraZ,
-        setOpacity
+        setOpacity,
+        setPaused
     };
 })();

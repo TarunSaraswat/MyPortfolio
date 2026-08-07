@@ -6,9 +6,10 @@
 const ARFrame = (() => {
     let isOpen = false;
     let currentTimeline = null;
+    let returnFocus = null;
 
     function init() {
-        document.getElementById('ar-close').addEventListener('click', hide);
+        document.getElementById('ar-close').addEventListener('click', () => hide());
 
         // Close on overlay click (outside frame)
         document.getElementById('ar-frame-overlay').addEventListener('click', (e) => {
@@ -21,7 +22,8 @@ const ARFrame = (() => {
         });
     }
 
-    function show(skill, side) {
+    function show(skill, side, trigger) {
+        returnFocus = trigger || document.activeElement;
         if (isOpen) {
             hide(() => showFrame(skill, side));
             return;
@@ -34,6 +36,7 @@ const ARFrame = (() => {
 
         const overlay = document.getElementById('ar-frame-overlay');
         const frame = document.getElementById('ar-frame');
+        overlay.setAttribute('aria-hidden', 'false');
 
         // Set side class for positioning
         overlay.classList.remove('side-left', 'side-right');
@@ -104,7 +107,8 @@ const ARFrame = (() => {
                 y: 0,
                 duration: 0.4,
                 ease: 'power2.out'
-            }, '-=0.1');
+            }, '-=0.1')
+            .call(() => document.getElementById('ar-close').focus());
 
         overlay.classList.add('active');
     }
@@ -124,12 +128,14 @@ const ARFrame = (() => {
         currentTimeline = gsap.timeline({
             onComplete: () => {
                 overlay.classList.remove('active');
+                overlay.setAttribute('aria-hidden', 'true');
                 overlay.style.visibility = 'hidden';
                 overlay.style.opacity = 0;
                 // Reset content for next open
                 gsap.set('.ar-frame-content', { opacity: 0, y: 10 });
                 gsap.set('.ar-corner', { opacity: 0 });
                 gsap.set('.ar-scanline', { opacity: 0 });
+                if (!callback) returnFocus?.focus();
                 if (callback) callback();
             }
         });

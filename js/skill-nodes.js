@@ -41,9 +41,15 @@ const SkillNodes = (() => {
 
     let labelElements = [];
     let container = null;
+    let sectionActive = false;
+    let lastProgress = 0;
 
     function init() {
         container = document.getElementById('skills-container');
+        if (document.documentElement.classList.contains('no-motion')) {
+            sectionActive = true;
+            container.classList.add('active');
+        }
         createLabels();
     }
 
@@ -51,9 +57,19 @@ const SkillNodes = (() => {
         SKILLS.forEach((skill, index) => {
             const side = index % 2 === 0 ? 'left' : 'right';
 
-            const label = document.createElement('div');
+            const label = document.createElement('button');
             label.className = `skill-label ${side}`;
             label.dataset.index = index;
+            label.type = 'button';
+            label.setAttribute('aria-haspopup', 'dialog');
+            label.setAttribute('aria-controls', 'ar-frame');
+            label.setAttribute('aria-label', `${skill.name}: open skill details`);
+
+            if (!sectionActive) {
+                label.disabled = true;
+                label.tabIndex = -1;
+                label.setAttribute('aria-hidden', 'true');
+            }
 
             if (skill.isGroup) {
                 // Group label with heading + items
@@ -77,7 +93,12 @@ const SkillNodes = (() => {
                 label.style.left = 'auto';
             }
 
-            label.addEventListener('click', () => onSkillClick(index));
+            label.addEventListener('click', () => onSkillClick(index, label));
+            label.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                onSkillClick(index, label);
+            });
             container.appendChild(label);
             labelElements.push(label);
         });
@@ -90,6 +111,9 @@ const SkillNodes = (() => {
     const maxDist = visibleWindow * windowPerSkill;
 
     function updateVisibility(scrollProgress) {
+        lastProgress = scrollProgress;
+        if (!sectionActive && !document.documentElement.classList.contains('no-motion')) return;
+
         for (let index = 0; index < totalSkills; index++) {
             const label = labelElements[index];
             const skillCenter = (index + 0.5) / totalSkills;
@@ -97,18 +121,44 @@ const SkillNodes = (() => {
 
             if (dist < maxDist) {
                 const relativePos = (scrollProgress - skillCenter) / maxDist;
+                const opacity = Math.pow(1 - dist / maxDist, 0.8);
+                const isVisible = opacity > 0.06;
+                const isInteractive = opacity >= 0.3;
                 label.style.top = `${50 + relativePos * -40}%`;
                 label.style.transform = 'translateY(-50%)';
-                label.style.opacity = Math.pow(1 - dist / maxDist, 0.8);
-                label.classList.add('visible');
-            } else if (label.classList.contains('visible')) {
+                label.style.opacity = opacity;
+                label.classList.toggle('visible', isVisible);
+                label.classList.toggle('is-interactive', isInteractive);
+                label.disabled = !isInteractive;
+                label.tabIndex = isInteractive ? 0 : -1;
+                label.setAttribute('aria-hidden', String(!isInteractive));
+            } else {
                 label.style.opacity = '0';
-                label.classList.remove('visible');
+                label.classList.remove('visible', 'is-interactive');
+                label.disabled = true;
+                label.tabIndex = -1;
+                label.setAttribute('aria-hidden', 'true');
             }
         }
     }
 
-    function onSkillClick(index) {
+    function setActive(active) {
+        sectionActive = active;
+        if (document.documentElement.classList.contains('no-motion')) return;
+        if (active) {
+            updateVisibility(lastProgress);
+            return;
+        }
+        labelElements.forEach(label => {
+            label.style.opacity = '0';
+            label.classList.remove('visible', 'is-interactive');
+            label.disabled = true;
+            label.tabIndex = -1;
+            label.setAttribute('aria-hidden', 'true');
+        });
+    }
+
+    function onSkillClick(index, trigger) {
         const skill = SKILLS[index];
         const side = index % 2 === 0 ? 'left' : 'right';
         // Pass skill with dynamically computed experience
@@ -116,12 +166,12 @@ const SkillNodes = (() => {
             ...skill,
             experience: calcExperience(skill.startDate)
         };
-        ARFrame.show(skillWithExp, side);
+        ARFrame.show(skillWithExp, side, trigger);
     }
 
     function getSkills() {
         return SKILLS;
     }
 
-    return { init, updateVisibility, getSkills };
+    return { init, updateVisibility, setActive, getSkills };
 })();

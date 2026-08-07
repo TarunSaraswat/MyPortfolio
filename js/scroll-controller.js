@@ -4,26 +4,8 @@
  */
 
 const ScrollController = (() => {
-    let lenis = null;
-
     function init() {
         gsap.registerPlugin(ScrollTrigger);
-
-        // Smooth scroll with Lenis
-        lenis = new Lenis({
-            duration: 1.8,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -8 * t)),
-            smoothWheel: true,
-            wheelMultiplier: 0.9,
-            lerp: 0.07
-        });
-
-        lenis.on('scroll', ScrollTrigger.update);
-
-        gsap.ticker.add((time) => {
-            lenis.raf(time * 1000);
-        });
-        gsap.ticker.lagSmoothing(0);
 
         // DNA Section scroll trigger
         setupDNAScrollTrigger();
@@ -48,6 +30,7 @@ const ScrollController = (() => {
             scrub: 1.5,
             onEnter: () => {
                 document.getElementById('skills-container').classList.add('active');
+                SkillNodes.setActive(true);
                 // Show click hint only on first scroll-down
                 if (!hintShown) {
                     hintShown = true;
@@ -58,13 +41,16 @@ const ScrollController = (() => {
             },
             onLeave: () => {
                 document.getElementById('skills-container').classList.remove('active');
+                SkillNodes.setActive(false);
                 document.getElementById('click-hint').classList.remove('visible');
             },
             onEnterBack: () => {
                 document.getElementById('skills-container').classList.add('active');
+                SkillNodes.setActive(true);
             },
             onLeaveBack: () => {
                 document.getElementById('skills-container').classList.remove('active');
+                SkillNodes.setActive(false);
                 document.getElementById('click-hint').classList.remove('visible');
             },
             onUpdate: (self) => {
@@ -187,14 +173,13 @@ const ScrollController = (() => {
             }
         });
 
-        // Experience entries slide in from far off-screen sides
-        const vw = window.innerWidth;
+        // Keep the original side entrance without widening the document.
         document.querySelectorAll('.timeline-entry').forEach((entry, i) => {
             const isLeft = i % 2 === 0;
             gsap.fromTo(entry, {
                 opacity: 0,
-                x: isLeft ? -vw : vw,
-                scale: 0.6
+                x: isLeft ? -40 : 40,
+                scale: 0.96
             }, {
                 opacity: 1,
                 x: 0,
@@ -221,8 +206,6 @@ const ScrollController = (() => {
         });
     }
 
-    let isSnapping = false;
-
     function setupAtomTransition() {
         // Shooting star effect: particles fly outward during projects end
         ScrollTrigger.create({
@@ -240,44 +223,6 @@ const ScrollController = (() => {
                 Particles.setParticleOpacity(1);
             }
         });
-
-        // Snap logic between projects and metrics
-        const projectsEl = document.getElementById('projects');
-        const metricsEl = document.getElementById('metrics');
-        const vh = window.innerHeight;
-        let prevScrollY = window.pageYOffset;
-        let scrollDir = 1;
-
-        function snapCheck() {
-            if (isSnapping) return;
-
-            const currentScroll = window.pageYOffset;
-            scrollDir = currentScroll > prevScrollY ? 1 : -1;
-            prevScrollY = currentScroll;
-
-            const projectsRect = projectsEl.getBoundingClientRect();
-            const metricsRect = metricsEl.getBoundingClientRect();
-
-            // Scrolling DOWN: if projects bottom goes above 75% of viewport
-            if (scrollDir > 0 && projectsRect.bottom < vh * 0.75 && projectsRect.bottom > 0) {
-                isSnapping = true;
-                lenis.stop();
-                const targetY = metricsEl.offsetTop - (vh / 2) + (metricsEl.offsetHeight / 2);
-                window.scrollTo({ top: targetY, behavior: 'smooth' });
-                setTimeout(() => { lenis.start(); isSnapping = false; }, 1200);
-            }
-
-            // Scrolling UP: if metrics top goes below 25% of viewport (into bottom 75%)
-            if (scrollDir < 0 && metricsRect.top > vh * 0.25 && metricsRect.top < vh) {
-                isSnapping = true;
-                lenis.stop();
-                const targetY = projectsEl.offsetTop - (vh / 2) + (projectsEl.offsetHeight / 2);
-                window.scrollTo({ top: targetY, behavior: 'smooth' });
-                setTimeout(() => { lenis.start(); isSnapping = false; }, 1200);
-            }
-        }
-
-        window.addEventListener('scroll', snapCheck);
 
         // Metrics: fade from 20% → 100% as particles vanish
         gsap.fromTo('#metrics', {
